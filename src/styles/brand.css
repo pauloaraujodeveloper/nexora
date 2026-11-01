@@ -1,0 +1,768 @@
+/* ---------------------------------------------------------------------------
+ * Nexora brand layer
+ *
+ * Sits on top of BoardUI's semantic tokens. Everything here is either a token
+ * override (so BoardUI components retint automatically) or a brand utility
+ * used by the Nexora shell. No component should hard-code a raw surface color.
+ * --------------------------------------------------------------------------- */
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-brand-blue: #2a4db5;
+  --color-brand-violet: #7c4dff;
+  --color-brand-cyan: #22d3ee;
+  --color-brand-magenta: #e040fb;
+  --color-brand-night: #070b14;
+  --color-brand-panel: #0e1524;
+}
+
+/* Accent ramp: indigo → violet, used by every BoardUI interactive surface. */
+:root,
+.dark {
+  --color-accent-50: #eef1ff;
+  --color-accent-100: #e0e5ff;
+  --color-accent-200: #c3ccff;
+  --color-accent-300: #9faeff;
+  --color-accent-400: #7c8cff;
+  --color-accent-500: #5b6cff;
+  --color-accent-600: #4338e0;
+  --color-accent-700: #3526b8;
+  --color-accent-800: #2a1f8f;
+  --color-accent-900: #201a66;
+  --color-accent-950: #14103d;
+
+  --color-chart-1: #22d3ee;
+  --color-chart-1-active: #06b6d4;
+  --color-chart-2: #34d399;
+  --color-chart-2-active: #10b981;
+  --color-chart-3: #e040fb;
+  --color-chart-3-active: #c026d3;
+  --color-chart-4: #60a5fa;
+  --color-chart-4-active: #3b82f6;
+  --color-chart-5: #a78bfa;
+  --color-chart-5-active: #8b5cf6;
+  --color-chart-6: #6366f1;
+  --color-chart-6-active: #4f46e5;
+  --color-chart-7: #2dd4bf;
+  --color-chart-7-active: #14b8a6;
+  --color-chart-8: #fbbf24;
+  --color-chart-8-active: #f59e0b;
+  --color-chart-9: #fb7185;
+  --color-chart-9-active: #f43f5e;
+}
+
+.dark {
+  /* Canvas + surfaces */
+  --color-background-full: #070b14;
+  --color-background-primary-default: #0e1524;
+  --color-background-primary-hover: #141d30;
+  --color-background-primary-active: #1a2440;
+  --color-background-primary-disabled: #0b1120;
+  --color-background-secondary-default: #0b1120;
+  --color-background-secondary-hover: #121a2d;
+  --color-background-tertiary-default: #182136;
+  --color-background-tertiary-hover: #202b44;
+  --color-background-inner-default: rgba(14, 21, 36, 0.55);
+  --color-input-disabled-background: rgba(255, 255, 255, 0.03);
+  --color-avatar-neutral-background: #1a2440;
+  --color-stat-card-icon-background: #111a2c;
+  --color-segmented-control-background: #0a101c;
+  --color-segmented-control-selected-background: #182136;
+  --color-theme-toggle-sidebar-background: #0a101c;
+  --color-theme-toggle-sidebar-selected-background: #182136;
+  --color-ticket-detail-surface: #0e1524;
+  --color-notification-center-background: #0b1120;
+
+  /* Text */
+  --color-text-primary: #e8eeff;
+  --color-text-secondary: #9fb0d6;
+  --color-text-tertiary: #6f82a8;
+  --color-text-disabled: #44526e;
+  --color-text-placeholder: #5b6b8c;
+  --color-foreground-icon-primary: #e8eeff;
+  --color-foreground-icon-secondary: #9fb0d6;
+  --color-foreground-icon-tertiary: #6f82a8;
+  --color-foreground-icon-quaternary: #44526e;
+  --color-foreground-full: #e8eeff;
+
+  /* Borders */
+  --color-border-button-default: rgba(126, 148, 196, 0.18);
+  --color-border-button-hover: rgba(126, 148, 196, 0.34);
+  --color-border-button-active: rgba(126, 148, 196, 0.48);
+  --color-border-button-white: rgba(255, 255, 255, 0.12);
+  --color-separator-border: rgba(126, 148, 196, 0.14);
+  --color-separator-border-strong: rgba(126, 148, 196, 0.24);
+  --color-border-table: rgba(126, 148, 196, 0.12);
+  --color-border-checkbox-default: rgba(126, 148, 196, 0.3);
+  --color-border-checkbox-hover: rgba(126, 148, 196, 0.5);
+  --color-border-component-detail-container: rgba(126, 148, 196, 0.16);
+  --color-border-sidebar-profile-hover: rgba(126, 148, 196, 0.3);
+  --color-border-ai-profile-card: rgba(126, 148, 196, 0.16);
+  --color-border-button-group: rgba(126, 148, 196, 0.16);
+
+  /* Charts + controls */
+  --color-chart-track: #1a2440;
+  --color-chart-cursor: #2a3a60;
+  --color-chart-neutral: #2a3a60;
+  --color-kbd-background: #182136;
+  --color-kbd-foreground: #9fb0d6;
+  --color-dropdown-item-hover-background: rgba(91, 108, 255, 0.12);
+  --color-badge-neutral-background: #182136;
+  --color-team-menu-count-background: #182136;
+  --color-team-menu-count-foreground: #9fb0d6;
+  --color-badge-new-background: rgba(91, 108, 255, 0.18);
+  --color-badge-new-text: #9faeff;
+  --color-tab-count-selected-background: rgba(91, 108, 255, 0.18);
+  --color-pill-tab-blue-selected-background: rgba(91, 108, 255, 0.14);
+  --color-pill-tab-blue-hover-background: #121a2d;
+  --color-button-ghost-background: rgba(91, 108, 255, 0.14);
+  --color-button-ghost-hover: rgba(91, 108, 255, 0.22);
+  --color-button-ghost-active: rgba(91, 108, 255, 0.3);
+  --color-button-ghost-foreground: #b9c2ff;
+
+  --shadow-sidebar: 0 1px 0 0 rgba(0, 0, 0, 0.2), 0 18px 60px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(126, 148, 196, 0.1);
+  --shadow-card: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 18px 48px -28px rgba(0, 0, 0, 0.8);
+  --shadow-nav-selected: 0 0 0 1px rgba(124, 140, 255, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 10px 28px -12px rgba(91, 108, 255, 0.8);
+}
+
+/* ---------------------------------------------------------------------------
+ * App canvas
+ * --------------------------------------------------------------------------- */
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--color-background-full);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: rgba(124, 140, 255, 0.35);
+  color: #fff;
+}
+
+.nexora-shell {
+  position: relative;
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 720px at 12% -10%, rgba(42, 77, 181, 0.28), transparent 62%),
+    radial-gradient(1000px 620px at 92% 4%, rgba(124, 77, 255, 0.18), transparent 60%),
+    radial-gradient(900px 600px at 60% 110%, rgba(34, 211, 238, 0.1), transparent 62%),
+    var(--color-background-full);
+}
+
+.nexora-grid {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(120, 150, 220, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 150, 220, 0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 25%, transparent 78%);
+  opacity: 0.55;
+}
+
+.nexora-aurora {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.nexora-aurora::before,
+.nexora-aurora::after {
+  content: "";
+  position: absolute;
+  width: 44vw;
+  height: 44vw;
+  min-width: 380px;
+  min-height: 380px;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.22;
+  animation: nx-drift 26s ease-in-out infinite alternate;
+}
+
+.nexora-aurora::before {
+  top: -16vw;
+  left: -8vw;
+  background: radial-gradient(circle at 40% 40%, #2a4db5, transparent 66%);
+}
+
+.nexora-aurora::after {
+  right: -12vw;
+  bottom: -18vw;
+  background: radial-gradient(circle at 50% 50%, #7c4dff 0%, #e040fb 42%, transparent 70%);
+  animation-delay: -12s;
+}
+
+@keyframes nx-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4vw, 3vw, 0) scale(1.12);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Surfaces
+ * --------------------------------------------------------------------------- */
+
+.glass-panel {
+  background:
+    linear-gradient(180deg, rgba(18, 27, 46, 0.86) 0%, rgba(11, 17, 32, 0.94) 100%);
+  border: 1px solid rgba(126, 148, 196, 0.14);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 70px -40px rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(18px);
+}
+
+.glass-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(20, 30, 51, 0.7) 0%, rgba(12, 19, 34, 0.92) 100%);
+  border: 1px solid rgba(126, 148, 196, 0.14);
+  border-radius: 20px;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.035) inset,
+    0 22px 50px -34px rgba(0, 0, 0, 0.95);
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(124, 140, 255, 0.26);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 26px 60px -32px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(124, 140, 255, 0.08);
+}
+
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, rgba(91, 108, 255, 0.65), rgba(34, 211, 238, 0.35), rgba(224, 64, 251, 0.55));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.brand-gradient-text {
+  background: linear-gradient(96deg, #a5b0ff 0%, #22d3ee 42%, #e040fb 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-gradient-bar {
+  background: linear-gradient(90deg, #5b6cff 0%, #7c4dff 38%, #22d3ee 70%, #e040fb 100%);
+}
+
+.brand-gradient-soft {
+  background: linear-gradient(135deg, rgba(91, 108, 255, 0.18), rgba(34, 211, 238, 0.1) 48%, rgba(224, 64, 251, 0.14));
+}
+
+.brand-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 140, 255, 0.5), rgba(34, 211, 238, 0.35), transparent);
+}
+
+/* ---------------------------------------------------------------------------
+ * Sidebar + navigation
+ * --------------------------------------------------------------------------- */
+
+.nx-sidebar {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 40, 0.94) 0%, rgba(8, 13, 24, 0.97) 100%);
+  border: 1px solid rgba(126, 148, 196, 0.14);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 30px 80px -40px rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(22px);
+}
+
+.nx-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 9px 10px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.nx-nav-item:hover {
+  color: var(--color-text-primary);
+  background: rgba(126, 148, 196, 0.08);
+}
+
+.nx-nav-item[data-active="true"] {
+  color: #fff;
+  background: linear-gradient(90deg, rgba(91, 108, 255, 0.24), rgba(34, 211, 238, 0.08));
+  box-shadow: inset 0 0 0 1px rgba(124, 140, 255, 0.24);
+}
+
+.nx-nav-item[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  height: 20px;
+  width: 3px;
+  translate: 0 -50%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22d3ee, #7c8cff, #e040fb);
+  box-shadow: 0 0 14px rgba(124, 140, 255, 0.9);
+}
+
+/* ---------------------------------------------------------------------------
+ * Status + health
+ * --------------------------------------------------------------------------- */
+
+.nx-status-healthy {
+  --nx-status: #34d399;
+  --nx-status-soft: rgba(52, 211, 153, 0.12);
+}
+
+.nx-status-attention {
+  --nx-status: #fbbf24;
+  --nx-status-soft: rgba(251, 191, 36, 0.12);
+}
+
+.nx-status-risk {
+  --nx-status: #fb7185;
+  --nx-status-soft: rgba(251, 113, 133, 0.14);
+}
+
+.nx-status-neutral {
+  --nx-status: #6f82a8;
+  --nx-status-soft: rgba(111, 130, 168, 0.14);
+}
+
+.nx-status-info {
+  --nx-status: #60a5fa;
+  --nx-status-soft: rgba(96, 165, 250, 0.13);
+}
+
+.nx-status-violet {
+  --nx-status: #a78bfa;
+  --nx-status-soft: rgba(167, 139, 250, 0.14);
+}
+
+.nx-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nx-status);
+  background: var(--nx-status-soft);
+  border: 1px solid color-mix(in srgb, var(--nx-status) 26%, transparent);
+  white-space: nowrap;
+}
+
+.nx-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--nx-status);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--nx-status) 18%, transparent);
+}
+
+.nx-ring-glow {
+  filter: drop-shadow(0 0 10px rgba(91, 108, 255, 0.35));
+}
+
+/* ---------------------------------------------------------------------------
+ * Charts
+ * --------------------------------------------------------------------------- */
+
+.nx-chart {
+  position: relative;
+  width: 100%;
+}
+
+.nx-chart canvas {
+  width: 100% !important;
+}
+
+.nx-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.nx-chart-legend button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  transition: color 150ms ease;
+}
+
+.nx-chart-legend button:hover {
+  color: var(--color-text-primary);
+}
+
+.nx-chart-legend button[data-muted="true"] {
+  opacity: 0.4;
+}
+
+.nx-legend-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Tables
+ * --------------------------------------------------------------------------- */
+
+.nx-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.nx-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(11, 17, 32, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(126, 148, 196, 0.16);
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 11px 14px;
+  white-space: nowrap;
+}
+
+.nx-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(126, 148, 196, 0.09);
+  color: var(--color-text-secondary);
+  vertical-align: middle;
+}
+
+.nx-table tbody tr {
+  transition: background-color 140ms ease;
+}
+
+.nx-table tbody tr:hover {
+  background: rgba(126, 148, 196, 0.06);
+}
+
+.nx-table tbody tr[data-selected="true"] {
+  background: rgba(91, 108, 255, 0.08);
+}
+
+.nx-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Motion helpers
+ * --------------------------------------------------------------------------- */
+
+@keyframes nx-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+}
+
+.nx-pulse {
+  animation: nx-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes nx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.nx-float {
+  animation: nx-float 7s ease-in-out infinite;
+}
+
+@keyframes nx-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nx-spin-slow {
+  animation: nx-spin-slow 28s linear infinite;
+}
+
+@keyframes nx-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.nx-shimmer {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.03) 20%, rgba(255, 255, 255, 0.1) 40%, rgba(255, 255, 255, 0.03) 60%);
+  background-size: 200% 100%;
+  animation: nx-shimmer 1.8s linear infinite;
+}
+
+@keyframes nx-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.5;
+  }
+  85% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.nx-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(34, 211, 238, 0.16), transparent);
+  animation: nx-scan 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Misc
+ * --------------------------------------------------------------------------- */
+
+.nx-range {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nx-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.nx-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(126, 148, 196, 0.16);
+}
+
+.nx-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5px;
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22d3ee, #7c8cff 55%, #e040fb);
+  border: 2px solid #0b1120;
+  box-shadow: 0 0 0 1px rgba(124, 140, 255, 0.55), 0 6px 18px -6px rgba(34, 211, 238, 0.9);
+  transition: transform 150ms ease;
+}
+
+.nx-range::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+}
+
+.nx-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(126, 148, 196, 0.16);
+}
+
+.nx-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22d3ee, #7c8cff 55%, #e040fb);
+  border: 2px solid #0b1120;
+  box-shadow: 0 0 0 1px rgba(124, 140, 255, 0.55), 0 6px 18px -6px rgba(34, 211, 238, 0.9);
+}
+
+.nx-range:focus-visible {
+  outline: 2px solid rgba(124, 140, 255, 0.7);
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+.nx-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(126, 148, 196, 0.2);
+  background: rgba(24, 33, 54, 0.9);
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.nx-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 148, 196, 0.28) transparent;
+}
+
+.nx-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.nx-scroll::-webkit-scrollbar-thumb {
+  background: rgba(126, 148, 196, 0.24);
+  border-radius: 999px;
+}
+
+.nx-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nx-code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: #c8d4f2;
+  background: #070c16;
+  border: 1px solid rgba(126, 148, 196, 0.16);
+  border-radius: 12px;
+}
+
+.nx-link {
+  color: #9faeff;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.nx-link:hover {
+  color: #c9d0ff;
+  text-decoration: underline;
+}
+
+.nx-avatar-stack > * + * {
+  margin-left: -8px;
+}
+
+.nx-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(126, 148, 196, 0.2), transparent);
+}
+
+.nx-empty-orbit {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  border: 1px dashed rgba(124, 140, 255, 0.4);
+  display: grid;
+  place-items: center;
+}
+
+.nx-empty-orbit::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+}
+
+/* Login scene */
+.nx-login-hero {
+  background:
+    linear-gradient(90deg, rgba(7, 11, 20, 0.2), rgba(7, 11, 20, 0.88) 72%),
+    url("/nexora-hero.jpg") center / cover no-repeat;
+}
+
+.nx-login-card {
+  background: linear-gradient(180deg, rgba(15, 23, 40, 0.9) 0%, rgba(8, 13, 24, 0.96) 100%);
+  border: 1px solid rgba(126, 148, 196, 0.16);
+  box-shadow: 0 40px 120px -50px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  backdrop-filter: blur(24px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}

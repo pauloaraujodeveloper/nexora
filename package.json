@@ -1,0 +1,38 @@
+{
+  "name": "nexora",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Nexora — Customer Intelligence Platform. Conexões inteligentes. Clientes que crescem.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@internationalized/date": "^3.12.1",
+    "@remixicon/react": "^4.9.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-table": "^8.21.3",
+    "animejs": "^4.5.0",
+    "chart.js": "^4.6.1",
+    "motion": "^12.42.2",
+    "react": "^19.3.1",
+    "react-aria-components": "^1.22.1",
+    "react-dom": "^19.3.1",
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "oxlint": "^1.89.0",
+    "sharp": "^0.35.5",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.5"
+  }
+}
