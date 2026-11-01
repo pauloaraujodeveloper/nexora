@@ -1,6 +1,9 @@
-import { useState, type DragEvent } from "react";
+import { useId, useState, type DragEvent } from "react";
 import {
+  RiAddLine,
   RiCheckLine,
+  RiCheckboxMultipleLine,
+  RiCloseLine,
   RiDraggable,
   RiMore2Line,
   RiTimeLine,
@@ -30,26 +33,83 @@ type TaskBoardProps = {
   tasks: Task[];
   customers: Customer[];
   users: User[];
-  onMove: (task: Task, status: TaskStatus) => void;
+  /** Moves a task and persists the column order (`orderedIds`, first to last). */
+  onDropTask: (task: Task, status: TaskStatus, orderedIds: string[]) => void;
   onDefer: (task: Task) => void;
+  onCreate: (status: TaskStatus) => void;
+  onAddSubtask: (task: Task, title: string) => void;
+  onToggleSubtask: (task: Task, subtaskId: string) => void;
+  onRemoveSubtask: (task: Task, subtaskId: string) => void;
 };
 
+function sortColumn(tasks: Task[], status: TaskStatus) {
+  return tasks
+    .filter((task) => task.status === status)
+    .sort(
+      (a, b) =>
+        (a.position ?? Number.MAX_SAFE_INTEGER) - (b.position ?? Number.MAX_SAFE_INTEGER) ||
+        +new Date(a.dueDate) - +new Date(b.dueDate),
+    );
+}
+
 /**
- * Kanban board for tasks. Cards are moved between the three status columns
- * with native drag and drop; every card also exposes the same moves through a
- * menu so touch and keyboard users can change status without dragging.
+ * Kanban board for tasks. Cards can be dragged between columns (status) and
+ * reordered inside a column; both moves persist through the store. Every card
+ * also exposes the same actions through a menu and each column has its own
+ * "new task" button, so touch and keyboard users get the full flow without
+ * dragging.
  */
-export function TaskBoard({ tasks, customers, users, onMove, onDefer }: TaskBoardProps) {
+export function TaskBoard({
+  tasks,
+  customers,
+  users,
+  onDropTask,
+  onDefer,
+  onCreate,
+  onAddSubtask,
+  onToggleSubtask,
+  onRemoveSubtask,
+}: TaskBoardProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overColumn, setOverColumn] = useState<TaskStatus | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ id: string; before: boolean } | null>(null);
 
-  function handleDrop(status: TaskStatus, event: DragEvent<HTMLElement>) {
-    event.preventDefault();
-    const id = event.dataTransfer.getData("text/plain") || draggingId;
-    setOverColumn(null);
+  function resetDrag() {
     setDraggingId(null);
-    const task = tasks.find((item) => item.id === id);
-    if (task && task.status !== status) onMove(task, status);
+    setOverColumn(null);
+    setDropTarget(null);
+  }
+
+  function dropOnCard(target: Task, before: boolean) {
+    const dragged = draggingId ? tasks.find((item) => item.id === draggingId) : null;
+    resetDrag();
+    if (!dragged || dragged.id === target.id) return;
+    const ids = sortColumn(tasks, target.status)
+      .map((item) => item.id)
+      .filter((id) => id !== dragged.id);
+    const index = ids.indexOf(target.id);
+    ids.splice(index < 0 ? ids.length : index + (before ? 0 : 1), 0, dragged.id);
+    onDropTask(dragged, target.status, ids);
+  }
+
+  function dropOnColumn(status: TaskStatus) {
+    const dragged = draggingId ? tasks.find((item) => item.id === draggingId) : null;
+    resetDrag();
+    if (!dragged) return;
+    const ids = sortColumn(tasks, status)
+      .map((item) => item.id)
+      .filter((id) => id !== dragged.id);
+    ids.push(dragged.id);
+    onDropTask(dragged, status, ids);
+  }
+
+  function moveToColumn(task: Task, status: TaskStatus) {
+    if (task.status === status) return;
+    const ids = sortColumn(tasks, status)
+      .map((item) => item.id)
+      .filter((id) => id !== task.id);
+    ids.push(task.id);
+    onDropTask(task, status, ids);
   }
 
   return (
@@ -61,7 +121,7 @@ export function TaskBoard({ tasks, customers, users, onMove, onDefer }: TaskBoar
 
       <div className="grid items-start gap-3 md:grid-cols-3">
         {TASK_COLUMNS.map((column) => {
-          const items = tasks.filter((task) => task.status === column.id);
+          const items = sortColumn(tasks, column.id);
           const isOver = draggingId !== null && overColumn === column.id;
 
           return (
@@ -72,13 +132,18 @@ export function TaskBoard({ tasks, customers, users, onMove, onDefer }: TaskBoar
                 event.preventDefault();
                 event.dataTransfer.dropEffect = "move";
                 if (overColumn !== column.id) setOverColumn(column.id);
+                if (dropTarget) setDropTarget(null);
               }}
               onDragLeave={(event) => {
                 if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
                   setOverColumn((current) => (current === column.id ? null : current));
+                  setDropTarget(null);
                 }
               }}
-              onDrop={(event) => handleDrop(column.id, event)}
+              onDrop={(event) => {
+                event.preventDefault();
+                dropOnColumn(column.id);
+              }}
               className={cx(
                 "flex min-h-[220px] flex-col gap-2 rounded-2xl border p-2.5 transition-colors duration-150",
                 isOver
@@ -95,6 +160,14 @@ export function TaskBoard({ tasks, customers, users, onMove, onDefer }: TaskBoar
                 <span className="ms-auto hidden text-caption-2-regular text-text-tertiary sm:block">
                   {column.hint}
                 </span>
+                <button
+                  type="button"
+                  onClick={() => onCreate(column.id)}
+                  aria-label={`Nova tarefa em ${column.label}`}
+                  className="grid size-6 shrink-0 place-items-center rounded-md text-text-tertiary transition-colors hover:bg-background-secondary-hover hover:text-text-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:outline-none"
+                >
+                  <RiAddLine className="size-4" aria-hidden />
+                </button>
               </header>
 
               {items.length === 0 ? (
@@ -111,19 +184,46 @@ export function TaskBoard({ tasks, customers, users, onMove, onDefer }: TaskBoar
               ) : (
                 <ul className="flex flex-1 flex-col gap-2">
                   {items.map((task) => (
-                    <li key={task.id}>
+                    <li key={task.id} className="relative">
+                      {dropTarget?.id === task.id ? (
+                        <span
+                          aria-hidden
+                          className={cx(
+                            "pointer-events-none absolute inset-x-1 z-10 h-0.5 rounded-full bg-accent-400",
+                            dropTarget.before ? "-top-1" : "-bottom-1",
+                          )}
+                        />
+                      ) : null}
                       <TaskCard
                         task={task}
                         customer={customers.find((item) => item.id === task.customerId)}
                         owner={users.find((item) => item.id === task.assigneeId)}
                         dragging={draggingId === task.id}
                         onDragStart={() => setDraggingId(task.id)}
-                        onDragEnd={() => {
-                          setDraggingId(null);
-                          setOverColumn(null);
+                        onDragEnd={resetDrag}
+                        onDragOverCard={(event) => {
+                          if (!draggingId || draggingId === task.id) return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          event.dataTransfer.dropEffect = "move";
+                          const rect = event.currentTarget.getBoundingClientRect();
+                          const before = event.clientY < rect.top + rect.height / 2;
+                          setOverColumn(task.status);
+                          setDropTarget((current) =>
+                            current?.id === task.id && current.before === before
+                              ? current
+                              : { id: task.id, before },
+                          );
                         }}
-                        onMove={onMove}
+                        onDragLeaveCard={() =>
+                          setDropTarget((current) => (current?.id === task.id ? null : current))
+                        }
+                        onDropCard={(before) => dropOnCard(task, before)}
+                        onMoveToColumn={moveToColumn}
                         onDefer={onDefer}
+                        onAddSubtask={onAddSubtask}
+                        onToggleSubtask={onToggleSubtask}
+                        onRemoveSubtask={onRemoveSubtask}
                       />
                     </li>
                   ))}
@@ -144,8 +244,14 @@ function TaskCard({
   dragging,
   onDragStart,
   onDragEnd,
-  onMove,
+  onDragOverCard,
+  onDragLeaveCard,
+  onDropCard,
+  onMoveToColumn,
   onDefer,
+  onAddSubtask,
+  onToggleSubtask,
+  onRemoveSubtask,
 }: {
   task: Task;
   customer?: Customer;
@@ -153,22 +259,50 @@ function TaskCard({
   dragging: boolean;
   onDragStart: () => void;
   onDragEnd: () => void;
-  onMove: (task: Task, status: TaskStatus) => void;
+  onDragOverCard: (event: DragEvent<HTMLElement>) => void;
+  onDragLeaveCard: () => void;
+  onDropCard: (before: boolean) => void;
+  onMoveToColumn: (task: Task, status: TaskStatus) => void;
   onDefer: (task: Task) => void;
+  onAddSubtask: (task: Task, title: string) => void;
+  onToggleSubtask: (task: Task, subtaskId: string) => void;
+  onRemoveSubtask: (task: Task, subtaskId: string) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [subtasksOpen, setSubtasksOpen] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [dragLocked, setDragLocked] = useState(false);
+  const subtasksId = useId();
+
   const done = task.status === "concluida";
   const overdue = !done && daysUntil(task.dueDate) < 0;
+  const subtasks = task.subtasks ?? [];
+  const doneSubtasks = subtasks.filter((subtask) => subtask.done).length;
+
+  function submitSubtask() {
+    const title = draft.trim();
+    if (!title) return;
+    onAddSubtask(task, title);
+    setDraft("");
+  }
 
   return (
     <article
-      draggable
+      draggable={!dragLocked}
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.setData("text/plain", task.id);
         onDragStart();
       }}
       onDragEnd={onDragEnd}
+      onDragOver={onDragOverCard}
+      onDragLeave={onDragLeaveCard}
+      onDrop={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const rect = event.currentTarget.getBoundingClientRect();
+        onDropCard(event.clientY < rect.top + rect.height / 2);
+      }}
       className={cx(
         "group cursor-grab rounded-xl border border-border-button-default bg-background-primary-default p-2.5",
         "transition-[opacity,border-color] duration-150 hover:border-border-button-hover active:cursor-grabbing",
@@ -196,7 +330,7 @@ function TaskCard({
                     selected={task.status === column.id}
                     onSelect={() => {
                       setMenuOpen(false);
-                      onMove(task, column.id);
+                      onMoveToColumn(task, column.id);
                     }}
                   >
                     <span className={cx("size-2 shrink-0 rounded-full", column.dot)} aria-hidden />
@@ -248,7 +382,26 @@ function TaskCard({
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-2">
-        <OwnerChip user={owner} compact />
+        <div className="flex min-w-0 items-center gap-2">
+          <OwnerChip user={owner} compact />
+          <button
+            type="button"
+            onClick={() => setSubtasksOpen((current) => !current)}
+            aria-expanded={subtasksOpen}
+            aria-controls={subtasksId}
+            aria-label={`Subtarefas de ${task.title}`}
+            className={cx(
+              "flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-caption-2-medium transition-colors",
+              "focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:outline-none",
+              subtasks.length
+                ? "bg-background-secondary-default text-text-secondary hover:text-text-primary"
+                : "text-text-tertiary hover:text-text-secondary",
+            )}
+          >
+            <RiCheckboxMultipleLine className="size-3.5" aria-hidden />
+            {subtasks.length ? `${doneSubtasks}/${subtasks.length}` : "Subtarefas"}
+          </button>
+        </div>
         <span
           className={cx(
             "text-caption-2-medium",
@@ -258,6 +411,79 @@ function TaskCard({
           {formatDate(task.dueDate)}
         </span>
       </div>
+
+      {subtasksOpen ? (
+        <div id={subtasksId} className="mt-2 space-y-1.5 border-t border-separator-border pt-2">
+          {subtasks.length ? (
+            <ul className="space-y-1">
+              {subtasks.map((subtask) => (
+                <li key={subtask.id} className="group/sub flex items-start gap-1.5">
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={subtask.done}
+                    aria-label={`${subtask.done ? "Reabrir" : "Concluir"} subtarefa ${subtask.title}`}
+                    onClick={() => onToggleSubtask(task, subtask.id)}
+                    className={cx(
+                      "mt-0.5 grid size-3.5 shrink-0 place-items-center rounded border transition-colors",
+                      "focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:outline-none",
+                      subtask.done
+                        ? "border-state-success-base bg-state-success-base/20 text-state-success-text"
+                        : "border-border-checkbox-default text-transparent hover:border-state-success-base hover:text-state-success-text",
+                    )}
+                  >
+                    <RiCheckLine className="size-2.5" aria-hidden />
+                  </button>
+                  <span
+                    className={cx(
+                      "min-w-0 flex-1 text-caption-1-regular",
+                      subtask.done ? "text-text-tertiary line-through" : "text-text-secondary",
+                    )}
+                  >
+                    {subtask.title}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onRemoveSubtask(task, subtask.id)}
+                    aria-label={`Remover subtarefa ${subtask.title}`}
+                    className="grid size-4 shrink-0 place-items-center rounded text-text-tertiary opacity-0 transition-opacity hover:text-text-error-primary focus-visible:opacity-100 group-hover/sub:opacity-100"
+                  >
+                    <RiCloseLine className="size-3" aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-caption-2-regular text-text-tertiary">Nenhuma subtarefa ainda.</p>
+          )}
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitSubtask();
+            }}
+            className="flex items-center gap-1.5"
+          >
+            <input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onFocus={() => setDragLocked(true)}
+              onBlur={() => setDragLocked(false)}
+              placeholder="Adicionar subtarefa"
+              aria-label={`Nova subtarefa de ${task.title}`}
+              className="min-w-0 flex-1 rounded-md border border-separator-border bg-background-secondary-default px-2 py-1 text-caption-1-regular text-text-primary placeholder:text-text-placeholder focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!draft.trim()}
+              aria-label="Adicionar subtarefa"
+              className="grid size-6 shrink-0 place-items-center rounded-md border border-separator-border text-text-secondary transition-colors hover:border-separator-border-strong hover:text-text-primary disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:outline-none"
+            >
+              <RiAddLine className="size-3.5" aria-hidden />
+            </button>
+          </form>
+        </div>
+      ) : null}
     </article>
   );
 }

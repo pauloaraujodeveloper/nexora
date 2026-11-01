@@ -318,6 +318,18 @@ export function TaskModal({
         }}
       >
         <Input label="Tarefa" value={title} onChange={setTitle} isRequired placeholder="Ex.: Enviar plano de ação" />
+        <div className="flex flex-col gap-1">
+          <span className="text-body-medium text-text-primary">Status</span>
+          <Select
+            aria-label="Status"
+            selectedKey={status}
+            onSelectionChange={(key) => setStatus(String(key) as TaskStatus)}
+          >
+            <SelectItem id="aberta">A fazer</SelectItem>
+            <SelectItem id="em_andamento">Em andamento</SelectItem>
+            <SelectItem id="concluida">Concluídas</SelectItem>
+          </Select>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-1">
             <span className="text-body-medium text-text-primary">Conta</span>

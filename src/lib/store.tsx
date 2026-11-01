@@ -10,6 +10,8 @@ import {
 import { createInitialState } from "./seed";
 import { computeHealth } from "./health";
 import { bandOf, uid } from "./format";
+import { isAdminEmail } from "./admin";
+import { userFromSession } from "./session";
 import type {
   AppState,
   AuditEntry,
@@ -116,12 +118,23 @@ function reducer(state: AppState, action: Action): AppState {
       };
     case "logout":
       return { ...state, session: null };
-    case "switchOrg":
+    case "switchOrg": {
+      const target = state.users.find((user) => user.id === action.userId);
+      const previous = state.session;
+      const session: Session = {
+        userId: action.userId,
+        orgId: action.orgId,
+        role: previous?.role ?? "member",
+        email: target?.email ?? previous?.email ?? "",
+        name: target?.name ?? previous?.name ?? "",
+        picture: target?.id === previous?.userId ? previous?.picture : undefined,
+        at: new Date().toISOString(),
+      };
       return {
         ...state,
-        session: { userId: action.userId, orgId: action.orgId, at: new Date().toISOString() },
+        session,
         audit: appendAudit(
-          { ...state, session: { userId: action.userId, orgId: action.orgId, at: new Date().toISOString() } },
+          { ...state, session },
           {
             actorUserId: action.userId,
             actorKind: "user",
@@ -132,6 +145,7 @@ function reducer(state: AppState, action: Action): AppState {
           },
         ),
       };
+    }
     case "addCustomer": {
       const next = { ...state, customers: [action.customer, ...state.customers] };
       return {
@@ -478,6 +492,29 @@ function reducer(state: AppState, action: Action): AppState {
   }
 }
 
+function normalizeSession(state: AppState): AppState {
+  const session = state.session;
+  if (!session) return state;
+
+  const user = state.users.find((item) => item.id === session.userId);
+  const email = session.email ?? user?.email ?? "";
+  const name = session.name ?? user?.name ?? "";
+
+  if (!user && (!email || !name)) {
+    return { ...state, session: null };
+  }
+
+  return {
+    ...state,
+    session: {
+      ...session,
+      role: session.role ?? (isAdminEmail(email) ? "admin" : "member"),
+      email,
+      name: name || email,
+    },
+  };
+}
+
 function loadState(): AppState {
   if (typeof window === "undefined") return createInitialState();
   try {
@@ -485,7 +522,7 @@ function loadState(): AppState {
     if (!raw) return createInitialState();
     const parsed = JSON.parse(raw) as AppState;
     if (!parsed.version || !parsed.customers?.length) return createInitialState();
-    return parsed;
+    return normalizeSession(parsed);
   } catch {
     return createInitialState();
   }
@@ -521,7 +558,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AppContextValue>(() => {
     const session = state.session;
-    const currentUser = session ? state.users.find((user) => user.id === session.userId) ?? null : null;
+    const currentUser = session
+      ? state.users.find((user) => user.id === session.userId) ?? userFromSession(session)
+      : null;
     const currentOrg = session ? state.orgs.find((org) => org.id === session.orgId) ?? null : null;
     const settings = session ? state.settings[session.orgId] ?? null : null;
     return {

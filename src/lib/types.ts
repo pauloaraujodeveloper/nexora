@@ -234,9 +234,15 @@ export type OrgSettings = {
   autoRefresh: boolean;
 };
 
+export type SessionRole = "admin" | "member";
+
 export type Session = {
   userId: string;
   orgId: string;
+  role: SessionRole;
+  email: string;
+  name: string;
+  picture?: string;
   at: string;
 };
 

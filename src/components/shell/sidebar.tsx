@@ -7,6 +7,7 @@ import {
   RiLogoutBoxRLine,
   RiRobot2Line,
   RiSettings3Line,
+  RiShieldUserLine,
 } from "@remixicon/react";
 import { cx } from "@/utils/cx";
 import { Badge } from "@/components/base/badges/badge";
@@ -31,6 +32,7 @@ type SidebarProps = {
   user: User;
   activePath: string;
   badges?: Record<string, number>;
+  isAdmin?: boolean;
   onSwitchOrg: (orgId: string) => void;
   onLogout: () => void;
   onNavigate?: () => void;
@@ -42,6 +44,7 @@ export function Sidebar({
   user,
   activePath,
   badges = {},
+  isAdmin = false,
   onSwitchOrg,
   onLogout,
   onNavigate,
@@ -143,12 +146,23 @@ export function Sidebar({
           <DropdownPopover aria-label="Conta" placement="top start" className="w-[248px]">
             <DropdownGroup>
               <div className="px-2 py-1.5">
-                <p className="truncate text-[12.5px] font-semibold text-text-primary">{user.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate text-[12.5px] font-semibold text-text-primary">
+                    {user.name}
+                  </p>
+                  {isAdmin ? <Badge color="primary">Admin</Badge> : null}
+                </div>
                 <p className="truncate text-[10.5px] text-text-tertiary">{user.email}</p>
               </div>
             </DropdownGroup>
             <DropdownDivider />
             <DropdownGroup>
+              {isAdmin ? (
+                <DropdownItem onSelect={() => go("admin")}>
+                  <RiShieldUserLine className="size-4 text-text-tertiary" aria-hidden />
+                  Administração
+                </DropdownItem>
+              ) : null}
               <DropdownItem onSelect={() => go("ia")}>
                 <RiRobot2Line className="size-4 text-text-tertiary" aria-hidden />
                 IA &amp; MCP

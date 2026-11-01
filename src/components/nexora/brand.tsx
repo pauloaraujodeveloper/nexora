@@ -21,7 +21,7 @@ export function NexoraMark({ size = 36, className, glow = true, alt = "Nexora" }
       )}
       style={{ width: size, height: size }}
     >
-      <img src="/nexora-mark.png" alt={alt} className="size-full object-cover" draggable={false} />
+      <img src="/nexora-mark-128.png" alt={alt} className="size-full object-cover" draggable={false} />
       {glow && (
         <span
           aria-hidden

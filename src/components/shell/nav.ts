@@ -8,6 +8,7 @@ import {
   RiRobot2Line,
   RiSettings3Line,
   RiHistoryLine,
+  RiShieldUserLine,
 } from "@remixicon/react";
 
 type IconComponent = ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
@@ -101,6 +102,15 @@ export const NAV_ITEMS: NavItem[] = [
     match: ["auditoria"],
     group: "Administração",
     description: "Trilha de ações do sistema",
+  },
+  {
+    id: "admin",
+    label: "Admin",
+    icon: RiShieldUserLine,
+    href: "admin",
+    match: ["admin"],
+    group: "Administração",
+    description: "Organizações e acessos internos",
   },
 ];
 

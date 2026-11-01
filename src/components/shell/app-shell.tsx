@@ -71,6 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       user={currentUser}
       activePath={route.path}
       badges={badges}
+      isAdmin={session.role === "admin"}
       onSwitchOrg={(orgId) => {
         const target = state.users.find((user) => user.orgId === orgId && user.active);
         if (target) dispatch({ type: "switchOrg", orgId, userId: target.id });

@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useApp } from "@/lib/store";
-import { useRoute } from "@/lib/router";
+import { navigate, useRoute } from "@/lib/router";
 import { AppShell } from "@/components/shell/app-shell";
+import { Spinner } from "@/components/base/spinner/spinner";
 import { LoginPage } from "@/pages/login-page";
 import { DashboardPage } from "@/pages/dashboard-page";
 import { CustomersPage } from "@/pages/customers-page";
@@ -12,6 +13,32 @@ import { TasksPage } from "@/pages/tasks-page";
 import { AiPage } from "@/pages/ai-page";
 import { SettingsPage } from "@/pages/settings-page";
 import { AuditPage } from "@/pages/audit-page";
+
+const AdminPanel = lazy(() => import("@/components/admin/admin-panel"));
+
+function AdminRoute() {
+  const { session } = useApp();
+  const allowed = session?.role === "admin";
+
+  useEffect(() => {
+    if (!allowed) navigate("dashboard");
+  }, [allowed]);
+
+  if (!allowed) return null;
+
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center gap-2 text-text-secondary">
+          <Spinner size="sm" aria-hidden />
+          <span className="text-body-medium">Carregando administração…</span>
+        </div>
+      }
+    >
+      <AdminPanel />
+    </Suspense>
+  );
+}
 
 function CurrentPage() {
   const route = useRoute();
@@ -36,6 +63,8 @@ function CurrentPage() {
       return <SettingsPage />;
     case "auditoria":
       return <AuditPage />;
+    case "admin":
+      return <AdminRoute />;
     case "dashboard":
     default:
       return <DashboardPage />;
@@ -61,6 +90,7 @@ export default function App() {
       ia: "IA & MCP",
       configuracoes: "Configurações",
       auditoria: "Auditoria",
+      admin: "Admin",
     };
     const root = route.segments[0] ?? "dashboard";
     document.title = `${titles[root] ?? "Dashboard"} · Nexora`;

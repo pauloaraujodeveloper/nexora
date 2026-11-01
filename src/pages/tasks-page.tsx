@@ -18,7 +18,7 @@ import { SectionCard } from "@/components/nexora/section-card";
 import { TaskBoard } from "@/components/nexora/task-board";
 import { EmptyState } from "@/components/nexora/empty-state";
 import { useApp, useOrgData } from "@/lib/store";
-import { daysUntil } from "@/lib/format";
+import { daysUntil, uid } from "@/lib/format";
 import { useMotionEnabled, useReveal } from "@/lib/motion";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/types";
 import { TaskModal } from "@/components/modals/action-modals";
@@ -30,6 +30,7 @@ export function TasksPage() {
   const data = useOrgData();
   const motion = useMotionEnabled(settings?.reduceMotion);
   const [modalOpen, setModalOpen] = useState(false);
+  const [createStatus, setCreateStatus] = useState<TaskStatus>("aberta");
   const [q, setQ] = useState("");
   const [priority, setPriority] = useState<TaskPriority | "todas">("todas");
   const [assignee, setAssignee] = useState("todos");
@@ -56,9 +57,19 @@ export function TasksPage() {
   const today = openTasks.filter((task) => daysUntil(task.dueDate) === 0);
   const done = data.tasks.filter((task) => task.status === "concluida");
 
-  function moveTask(task: Task, status: TaskStatus) {
-    if (task.status === status) return;
-    dispatch({ type: "updateTask", id: task.id, patch: { status } });
+  function openCreate(status: TaskStatus = "aberta") {
+    setCreateStatus(status);
+    setModalOpen(true);
+  }
+
+  function dropTask(task: Task, status: TaskStatus, orderedIds: string[]) {
+    const changed = task.status !== status;
+    if (changed) dispatch({ type: "updateTask", id: task.id, patch: { status } });
+    dispatch({
+      type: "reorderTasks",
+      items: orderedIds.map((id, position) => ({ id, position })),
+    });
+    if (!changed) return;
     if (status === "concluida") {
       toast.success("Tarefa concluída", { description: task.title });
     } else if (status === "em_andamento") {
@@ -66,6 +77,27 @@ export function TasksPage() {
     } else {
       toast.info("Tarefa reaberta", { description: task.title });
     }
+  }
+
+  function addSubtask(task: Task, title: string) {
+    dispatch({
+      type: "addSubtask",
+      taskId: task.id,
+      subtask: {
+        id: uid("sub"),
+        title,
+        done: false,
+        createdAt: new Date().toISOString(),
+      },
+    });
+  }
+
+  function toggleSubtask(task: Task, subtaskId: string) {
+    dispatch({ type: "toggleSubtask", taskId: task.id, subtaskId });
+  }
+
+  function removeSubtask(task: Task, subtaskId: string) {
+    dispatch({ type: "removeSubtask", taskId: task.id, subtaskId });
   }
 
   function deferTask(task: Task) {
@@ -84,7 +116,7 @@ export function TasksPage() {
         title="Tarefas"
         description="Os próximos passos que mantêm cada conta avançando — com prazo, prioridade e responsável."
         actions={
-          <Button size="medium" leadingIcon={RiAddLine} onClick={() => setModalOpen(true)}>
+          <Button size="medium" leadingIcon={RiAddLine} onClick={() => openCreate()}>
             Nova tarefa
           </Button>
         }
@@ -209,7 +241,7 @@ export function TasksPage() {
             title="Nenhuma tarefa neste filtro"
             description="Ajuste a busca e os filtros ou crie um novo próximo passo."
             action={
-              <Button variant="secondary" size="small" onClick={() => setModalOpen(true)}>
+              <Button variant="secondary" size="small" onClick={() => openCreate()}>
                 Criar tarefa
               </Button>
             }
@@ -220,8 +252,12 @@ export function TasksPage() {
           tasks={tasks}
           customers={data.customers}
           users={data.users}
-          onMove={moveTask}
+          onDropTask={dropTask}
           onDefer={deferTask}
+          onCreate={openCreate}
+          onAddSubtask={addSubtask}
+          onToggleSubtask={toggleSubtask}
+          onRemoveSubtask={removeSubtask}
         />
       )}
 
@@ -241,6 +277,7 @@ export function TasksPage() {
           customers={data.customers}
           users={data.users}
           defaultAssigneeId={currentUser?.id}
+          defaultStatus={createStatus}
         />
       ) : null}
     </div>

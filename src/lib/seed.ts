@@ -823,5 +823,3 @@ export function createInitialState(): AppState {
     session: null,
   };
 }
-
-export const DEMO_ORGS = [orgOrbita, orgMare];
